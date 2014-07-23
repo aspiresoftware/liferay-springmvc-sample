@@ -2,6 +2,7 @@ package com.aspire.student.dao;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 /**
  * GenericDAO interface define all basic methods of DAO class related operation.
@@ -32,4 +33,12 @@ public interface GenericDAO<T, ID extends Serializable> {
 
   /** Retrieve a list of objects */
   public List<T> findAll() throws Exception;
+  
+  /**
+   * Find list by namedQuery
+   * @param queryName
+   * @param queryParameters
+   * @return
+   */
+  public List<T> findByQueryParams(String queryName, Map<String, Object> queryParameters) throws Exception;
 }

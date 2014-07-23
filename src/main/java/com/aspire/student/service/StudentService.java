@@ -42,5 +42,12 @@ public interface StudentService {
    * @return
    * @throws Exception
    */
-  public Student getStudent(Integer id); 
+  public Student getStudent(Integer id);
+  
+  /**
+   * Search students by string
+   * @param queryString
+   * @return
+   */
+  public List<Student> searchStudents(String string);
 }

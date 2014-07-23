@@ -218,4 +218,40 @@ public class StudentController {
     map.put("aaData", listStudentVO);
     JsonServiceUtil.writeJson(writer, map);
   }
+  
+  /**
+   * Search students by query string
+   * 
+   * @param request
+   * @param response
+   */
+  @ResourceMapping("searchStudents")
+  public void searchStudents(@RequestParam("quertString") String queryString,
+      ResourceRequest request, ResourceResponse response) {
+    
+    logger.info("searchStudents()");
+    List<StudentVO> listStudentVO = new ArrayList<StudentVO>();
+    StudentVO studentVO =null;
+    PrintWriter writer = null;
+    try {
+      writer = response.getWriter();
+      // Fetch students
+      List<Student> listStudents = studentService.searchStudents(queryString);
+      if (listStudents != null && !listStudents.isEmpty()) {
+        logger.info("Student Size is " + listStudents.size());
+        // Copy list to all student view
+        for (Student student : listStudents) {
+          studentVO =  new StudentVO();
+          BeanUtils.copyProperties(student, studentVO);
+          listStudentVO.add(studentVO);
+        }
+        logger.info("Student View list size " + listStudentVO.size());
+      }
+    } catch (Exception e) {
+      logger.error("Error while getting all students", e);
+    }
+    Map<String, Object> map = new HashMap<String, Object>();
+    map.put("aaData", listStudentVO);
+    JsonServiceUtil.writeJson(writer, map);
+  }
 }

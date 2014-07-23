@@ -1,5 +1,6 @@
 <%@include file="init.jsp"%>
 <%@include file="modal.jsp"%>
+
 <portlet:renderURL var="addStudentUrl">
 	<portlet:param name="render" value="studentForm"/>
 </portlet:renderURL>
@@ -8,19 +9,19 @@
 </portlet:renderURL>
 
 <div class="alert alert-success fade in"
-	<c:if test="${empty success }">
-		style="display: none;"
-	</c:if>	
->
-	<i class="icon-remove close" data-dismiss="alert"></i>
-	<strong>Success!</strong> <span class="message">${success}</span>
-</div>
-<div class="alert alert-danger fade in" 
-	<c:if test="${empty error }">
+	<c:if test="${empty success }"> 
 		style="display: none;"
 	</c:if>
->
-	<i class="icon-remove close" data-dismiss="alert"></i>
+	>
+		<i class="icon-remove close" data-dismiss="alert"></i>
+	<strong>Success!</strong> <span class="message">${success}</span>		
+</div>
+<div class="alert alert-danger fade in"
+	<c:if test="${empty error }"> 
+		style="display: none;"
+	</c:if>
+	>
+		<i class="icon-remove close" data-dismiss="alert"></i>
 	<strong>Error!</strong><span class="message">${error}</span>
 </div>
 <p>
@@ -28,24 +29,45 @@
 	<spring:message code="label.newStudent" />
 </a>
 </p>
-<div class="next-row">
-<table id="student-datatable" class="table table-striped table-bordered">
-	<thead>
-		<tr>
-			<th><spring:message code="label.firstname" /></th>
-			<th><spring:message code="label.lastname" /></th>
-			<th><spring:message code="label.email" /></th>
-			<th></th>
-		</tr>
-	</thead>
-	<tbody>
-	</tbody>
-</table>
+<div>
+	<label>Search: <input type="text" id="search-input"></label>
+</div>
+<div class="span12">
+	<table id="student-datatable" class="table table-striped table-bordered">
+		<thead>
+			<tr>
+				<th><spring:message code="label.firstname" /></th>
+				<th><spring:message code="label.lastname" /></th>
+				<th><spring:message code="label.email" /></th>
+				<th></th>
+			</tr>
+		</thead>
+		<tbody>
+		</tbody>
+	</table>
 </div>
 <script>
 $(document).ready(function() {
+	
+	jQuery("#search-input").change(function() {
+		if($(this).val()=="") {
+			return;
+		}
+		$.ajax({
+			type : "POST",
+			url : "<portlet:resourceURL id='searchStudents' />",
+			data : "quertString=" + $(this).val(),
+			dataType : "json",
+			success : function(response) {
+				alert('success');
+			},
+			error : function(e) {
+				alert('Ajax Error: ' + e);
+			}
+		});
+	});
+	
 	 $('#student-datatable').dataTable({
-		 	bJQueryUI: true,
 		 	bAutoWidth : true,
 			bProcessing : true,
 			sAjaxSource : "<portlet:resourceURL id='getAllStudents'/>",

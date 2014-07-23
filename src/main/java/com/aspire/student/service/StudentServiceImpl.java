@@ -1,6 +1,8 @@
 package com.aspire.student.service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,4 +88,21 @@ public class StudentServiceImpl implements StudentService {
     }
     return null;
   }
+
+  /* (non-Javadoc)
+   * @see com.aspire.student.service.StudentService#searchStudents(java.lang.String)
+   */
+  @Transactional
+  public List<Student> searchStudents(String string) {
+    Map<String,Object> queryParameter = new HashMap<String, Object>();
+    queryParameter.put("queryString", "%"+string+"%");
+    try {
+      return studentDAO.findByQueryParams("fetchStudentsByQueryString", queryParameter);
+    } catch (Exception e) {
+      logger.error("Error while fetching student by id ",e);
+    }
+    return null;
+  }
+  
+  
 }
