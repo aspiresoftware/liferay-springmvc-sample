@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+	<bean id="courseDAO" class="com.aspire.student.dao.GenericDAOImpl">
+		<property name="sessionFactory" ref="sessionFactory" />
+		<constructor-arg>
+			<value>com.aspire.student.model.Course</value>
+		</constructor-arg>
+	</bean>
+	
+	<bean id="courseCategoryDAO" class="com.aspire.student.dao.GenericDAOImpl">
+		<property name="sessionFactory" ref="sessionFactory" />
+		<constructor-arg>
+			<value>com.aspire.student.model.CourseCategory</value>
+		</constructor-arg>
+	</bean>
+	
+	<bean id="studentDAO" class="com.aspire.student.dao.GenericDAOImpl">
+		<property name="sessionFactory" ref="sessionFactory" />
+		<constructor-arg>
+			<value>com.aspire.student.model.Student</value>
+		</constructor-arg>
+	</bean>
+</beans>
