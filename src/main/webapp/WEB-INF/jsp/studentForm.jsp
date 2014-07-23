@@ -3,11 +3,9 @@
 	<portlet:param name="action" value="save"/>
 </portlet:actionURL>
 <portlet:renderURL var="backToList" />
-
-<a href="${backToList}">
-	<spring:message code="label.backToList" />
-</a>
-
+<p>
+<liferay-ui:header title="Back to Stundent List" backURL="${backToList}" backLabel="Back"></liferay-ui:header>
+</p>
 <form:form id="studentForm" commandName="student" method="post" action="${addStudentURL}" cssClass="form-horizontal">
 	<c:if test="${not empty message }">
 		${message}
