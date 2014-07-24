@@ -2,7 +2,6 @@ package com.aspire.student.controller;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +31,10 @@ import com.aspire.student.model.Student;
 import com.aspire.student.service.CourseCategoryService;
 import com.aspire.student.service.CourseService;
 import com.aspire.student.service.StudentService;
+import com.aspire.student.util.CourseCategoryUtil;
+import com.aspire.student.util.CourseUtil;
 import com.aspire.student.util.JsonServiceUtil;
+import com.aspire.student.util.StudentUtil;
 import com.aspire.student.vo.StudentVO;
 
 /**
@@ -54,6 +56,11 @@ public class StudentController {
   @Autowired
   private MessageSource messageSource;
   private Logger logger = Logger.getLogger(StudentController.class);
+  
+  // Constants
+  private static final String JSP_STUDENTLIST = "studentList";
+  private static final String JSP_STUDENTFORM = "studentForm";
+  private static final String JSP_STUDENTVIEW = "viewStudent";
 
   /**
    * Default render method when page is load
@@ -64,7 +71,7 @@ public class StudentController {
   @RenderMapping
   public String defaultRender(Map<String, Object> map) {
     logger.debug("in defaultRender()");
-    return "studentList";
+    return JSP_STUDENTLIST;
   }
 
   /**
@@ -74,29 +81,28 @@ public class StudentController {
    * @return
    */
   @RenderMapping(params = "render=studentForm")
-  public String addStudent(@RequestParam(value = "studentId", required = false) Integer studentId,
+  public String studentForm(@RequestParam(value = "studentId", required = false) Integer studentId,
       Map<String, Object> map) {
     logger.debug("in addStudent()");
     Student student = null;
     if (studentId != null) {
+      // Get student details to edit
       logger.info("student id is " + studentId);
       student = studentService.getStudent(studentId);
     }
     if (student == null) {
       student = new Student();
     }
-    try {
-      map.put("student", student);
-      map.put("courseCategory", courseCategoryService.getCourseCategories());
-      map.put("courses", courseService.getCourseList());
-    } catch (Exception e) {
-      logger.error("Error while rendering objects", e);
-    }
-    return "studentForm";
+    // Load student form details
+    map.put("student", student);
+    CourseCategoryUtil.loadCourseCategoryList(courseCategoryService, map);
+    CourseUtil.loadCourseList(courseService, map);
+    return JSP_STUDENTFORM;
   }
 
   /**
    * View student data
+   * 
    * @param studentId
    * @param map
    * @return
@@ -105,20 +111,19 @@ public class StudentController {
   public String viewStudent(@RequestParam(value = "studentId", required = false) Integer studentId,
       Map<String, Object> map) {
     logger.debug("in viewStudent()");
-    Student student = null;
     StudentVO studentVO = null;
     if (studentId != null) {
       logger.info("student id is " + studentId);
-      student = studentService.getStudent(studentId);
+      Student student = studentService.getStudent(studentId);
       studentVO = new StudentVO();
       BeanUtils.copyProperties(student, studentVO);
     }
     if (studentVO != null) {
       map.put("student", studentVO);
     }
-    return "viewStudent";
+    return JSP_STUDENTVIEW;
   }
-  
+
   /**
    * Create a new student
    * 
@@ -135,15 +140,17 @@ public class StudentController {
       @ModelAttribute("student") Student student, BindingResult result) throws IOException,
       PortletException {
     logger.debug("In adddStudent()");
-    if(student.getCourse().getId()==null){
-      logger.info("cource is null");
+    if (student.getCourse().getId() == null) {
+      logger.info("Cource is null");
       student.setCourse(null);
     }
+
     try {
-      student = studentService.addStudent(student);
+      student = studentService.saveStudent(student);
     } catch (Exception e) {
-      logger.error("Error while add new student", e);
+      logger.error("Error while saving student", e);
     }
+
     if (student != null) {
       actionRequest.setAttribute(Constants.SUCCESS,
           messageSource.getMessage("student.save.success", null, null));
@@ -155,6 +162,7 @@ public class StudentController {
 
   /**
    * Delete Student
+   * 
    * @param studentId
    * @param request
    * @param response
@@ -163,9 +171,8 @@ public class StudentController {
    * @throws PortletException
    */
   @ResourceMapping("deleteStudent")
-  public void deleteStudent(@RequestParam("studentId") Integer studentId,
-      ResourceRequest request, ResourceResponse response, Model model) throws IOException,
-      PortletException {
+  public void deleteStudent(@RequestParam("studentId") Integer studentId, ResourceRequest request,
+      ResourceResponse response, Model model) throws IOException, PortletException {
     logger.debug("In deleteStudent()");
     logger.info("Student Id=" + studentId);
     PrintWriter writer = null;
@@ -177,11 +184,11 @@ public class StudentController {
       actionMessage = messageSource.getMessage("student.delete.success", null, null);
       map.put("status", Constants.SUCCESS);
     } catch (Exception e) {
+      logger.error("Error while deleting student", e);
       actionMessage = messageSource.getMessage("student.delete.error", null, null);
       map.put("status", Constants.ERROR);
-      logger.error("Error while delete student", e);
     }
-    map.put("actionMessage",actionMessage );
+    map.put("actionMessage", actionMessage);
     JsonServiceUtil.writeJson(writer, map);
   }
 
@@ -193,32 +200,23 @@ public class StudentController {
    */
   @ResourceMapping("getAllStudents")
   public void getAllStudents(ResourceRequest request, ResourceResponse response) {
-    logger.info("getAllStudents() - Getting all students");
-    List<StudentVO> listStudentVO = new ArrayList<StudentVO>();
-    StudentVO studentVO = null;
+    logger.info("getAllStudents()");
     PrintWriter writer = null;
+    List<Student> studentList = null;
     try {
       writer = response.getWriter();
       // Fetch students
-      List<Student> listStudents = studentService.getStudentList();
-      if (listStudents != null && !listStudents.isEmpty()) {
-        logger.info("Student Size is " + listStudents.size());
-        // Copy list to all student view
-        for (Student student : listStudents) {
-          studentVO =  new StudentVO();
-          BeanUtils.copyProperties(student, studentVO);
-          listStudentVO.add(studentVO);
-        }
-        logger.info("Student View list size " + listStudentVO.size());
-      }
+      logger.info("Getting all student list");
+      studentList = studentService.getStudentList();
     } catch (Exception e) {
       logger.error("Error while getting all students", e);
     }
     Map<String, Object> map = new HashMap<String, Object>();
-    map.put("aaData", listStudentVO);
+    List<StudentVO> studentVOList = StudentUtil.getStudentVOList(studentList);
+    map.put("aaData", studentVOList);
     JsonServiceUtil.writeJson(writer, map);
   }
-  
+
   /**
    * Search students by query string
    * 
@@ -228,30 +226,19 @@ public class StudentController {
   @ResourceMapping("searchStudents")
   public void searchStudents(@RequestParam("quertString") String queryString,
       ResourceRequest request, ResourceResponse response) {
-    
     logger.info("searchStudents()");
-    List<StudentVO> listStudentVO = new ArrayList<StudentVO>();
-    StudentVO studentVO =null;
     PrintWriter writer = null;
+    List<Student> studentList = null;
     try {
       writer = response.getWriter();
       // Fetch students
-      List<Student> listStudents = studentService.searchStudents(queryString);
-      if (listStudents != null && !listStudents.isEmpty()) {
-        logger.info("Student Size is " + listStudents.size());
-        // Copy list to all student view
-        for (Student student : listStudents) {
-          studentVO =  new StudentVO();
-          BeanUtils.copyProperties(student, studentVO);
-          listStudentVO.add(studentVO);
-        }
-        logger.info("Student View list size " + listStudentVO.size());
-      }
+      studentList = studentService.searchStudents(queryString);
     } catch (Exception e) {
       logger.error("Error while getting all students", e);
     }
     Map<String, Object> map = new HashMap<String, Object>();
-    map.put("aaData", listStudentVO);
+    List<StudentVO> listStudentVO = StudentUtil.getStudentVOList(studentList);
+    map.put("studentList", listStudentVO);
     JsonServiceUtil.writeJson(writer, map);
   }
 }
