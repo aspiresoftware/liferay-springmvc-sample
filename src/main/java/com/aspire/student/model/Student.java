@@ -8,6 +8,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 
 /**
@@ -18,6 +19,9 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "STUDENT")
+@NamedQuery(
+    name = "fetchStudentsByQueryString",
+    query = "SELECT student FROM Student student WHERE student.firstName LIKE :queryString  OR lastName like :queryString or email like :queryString")
 public class Student implements Serializable {
   /**
    * 

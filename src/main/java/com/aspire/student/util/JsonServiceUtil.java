@@ -7,6 +7,11 @@ import org.apache.log4j.Logger;
 
 import com.google.gson.Gson;
 
+/**
+ * Utility class manages uses to perform json related functionality
+ * @author aspire20
+ *
+ */
 public class JsonServiceUtil {
 
   public static Logger log = Logger.getLogger(JsonServiceUtil.class);

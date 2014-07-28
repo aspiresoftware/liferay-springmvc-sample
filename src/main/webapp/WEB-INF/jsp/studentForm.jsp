@@ -3,8 +3,9 @@
 	<portlet:param name="action" value="save"/>
 </portlet:actionURL>
 <portlet:renderURL var="backToList" />
+
 <p>
-<liferay-ui:header title="Back to Stundent List" backURL="${backToList}" backLabel="Back"></liferay-ui:header>
+<liferay-ui:header title="Back to Student List" backURL="${backToList}" backLabel="Back"></liferay-ui:header>
 </p>
 <form:form id="studentForm" commandName="student" method="post" action="${addStudentURL}" cssClass="form-horizontal">
 	<c:if test="${not empty message }">
@@ -23,7 +24,7 @@
 							code="label.firstname" /><span class="required">*</span>
 					</label>
 					<div class="controls">
-						<form:input path="firstName" cssClass="required"/>
+						<form:input path="firstName" cssClass="required alpha"/>
 					</div>
 				</div>
 				<div class="control-group">
@@ -31,7 +32,7 @@
 						<spring:message code="label.lastname"/><span class="required">*</span>
 					</label>
 					<div class="controls">
-						<form:input path="lastName" cssClass="required"/>
+						<form:input path="lastName" cssClass="required alpha"/>
 					</div>
 				</div>
 				<div class="control-group">
@@ -87,7 +88,7 @@
 						<select id="course-category">
 							<option value="">--Select--</option>
 							<c:forEach items="${courseCategory}" var="courseCategory" varStatus="status">
-								<option value="${courseCategory.category}" 
+								<option value="${fn:replace(courseCategory.category,' ','-')}" 
 									<c:if test="${student.course.courseCategory.id == courseCategory.id }">
 										selected="selected"
 									</c:if>
@@ -105,10 +106,10 @@
 							<c:forEach items="${courses}" var="course" varStatus="status">
 								<c:choose>
 									<c:when test="${not empty student.course and course.courseCategory.id eq student.course.courseCategory.id}">
-										<form:option cssClass="${course.courseCategory.category}" value="${course.id}">${course.courseName}</form:option>
+										<form:option cssClass="${fn:replace(course.courseCategory.category,' ','-')}" value="${course.id}">${course.courseName}</form:option>
 									</c:when>
 									<c:otherwise>
-										<form:option cssClass="${course.courseCategory.category}" value="${course.id}" cssStyle="display:none;">${course.courseName}</form:option>
+										<form:option cssClass="${fn:replace(course.courseCategory.category,' ','-')}" value="${course.id}" cssStyle="display:none;">${course.courseName}</form:option>
 									</c:otherwise>
 								</c:choose>								
 							</c:forEach>
@@ -116,21 +117,15 @@
 					</div>
 				</div>
 			</div>
-			<ul class="pager wizard">
-				<li class="previous">
-					<a href="javascript:void(0);" class="button-previous"><spring:message code="label.previous" /> </a>
-				</li>
-				<li class="next">
-					<a href="javascript:void(0);" class="button-next"><spring:message code="label.next"/> </a>
-				</li>
-				<li class="submit">
-					<form:hidden path="id"/>
-					<button type="submit" class="btn btn-success button-submit">
+			<div class="well well-large">
+				<form:hidden path="id"/>
+	  			<a href="javascript:void(0);" class="btn button-previous" ><i class="icon-arrow-left"></i> <spring:message code="label.previous" /></a>
+	  			<a href="javascript:void(0);" class="btn button-next"><spring:message code="label.next"/> <i class="icon-arrow-right"></i></a>
+			  	<button type="submit" class="btn btn-success button-submit">
 						<spring:message code="label.submit" />
 						<i class="icon-angle-right"></i>
-					</button>
-				</li>
-			</ul>
+				</button>
+			</div>
 		</div>
 	</div>
 </form:form>

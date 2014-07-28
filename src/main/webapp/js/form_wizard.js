@@ -5,6 +5,11 @@ $(document).ready(function() {
 	
 	var $validator = $("#studentForm").validate();
 	
+	$.validator.addMethod("alpha", function(value,element)
+	{
+		return this.optional(element) || /^[a-zA-Z]+$/i.test(value); 
+	}, "Please enter alphabets only");
+	
 	var handleTitle = function(tab, navigation, index) {
 		var total = navigation.find('li').length;
 		var current = index + 1;

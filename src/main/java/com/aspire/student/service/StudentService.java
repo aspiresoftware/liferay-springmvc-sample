@@ -18,7 +18,7 @@ public interface StudentService {
    * @param student
    * @throws Exception
    */
-  public Student addStudent(Student student) throws Exception;
+  public Student saveStudent(Student student) throws Exception;
 
   /**
    * Retrieve list of students

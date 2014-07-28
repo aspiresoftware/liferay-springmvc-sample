@@ -34,7 +34,7 @@ public class StudentServiceImpl implements StudentService {
    * @see com.aspire.student.service.StudentService#addStudent(com.aspire.student.model.Student)
    */
   @Transactional
-  public Student addStudent(Student student) throws Exception {
+  public Student saveStudent(Student student) throws Exception {
     logger.debug("In addStudent()");
     logger.info("Adding student details for student email - " + student.getEmail());
     try {
@@ -102,7 +102,5 @@ public class StudentServiceImpl implements StudentService {
       logger.error("Error while fetching student by id ",e);
     }
     return null;
-  }
-  
-  
+  }  
 }
